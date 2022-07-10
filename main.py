@@ -6,6 +6,7 @@ import json
 from bs4 import BeautifulSoup
 import glob
 
+
 class TelegramMessage:
     """Class wrapping a telegram message"""
     def __init__(self, date: datetime, sender: str, message: str):
@@ -15,7 +16,7 @@ class TelegramMessage:
 
     def to_text_string(self):
         """ returns Message as a full Text String"""
-        return "["+self.date.isoformat()+"] "+self.sender +": "+self.message
+        return f"[{self.date.isoformat()}] {self.sender}: {self.message}"
 
     def to_object(self):
         """ return a dict"""
@@ -25,14 +26,14 @@ class TelegramMessage:
 
     def to_plain_string(self):
         """ returns just the message """
-        return self.sender +": "+ self.message
+        return f"{self.sender}: {self.message}"
 
     def to_html(self):
         """ return in html format"""
-        return "<b>"+self.sender +"</b>: "+ self.message
+        return f"<b>{self.sender}</b>: {self.message}"
 
-    def only_message(self):
-        return self.message
+    def no_names_message(self):
+        return f"{self.message}"
 
 
 def main():
@@ -85,6 +86,7 @@ def main():
         outfile = parsed.output[0]
     else:
         outfile = parsed.output
+    objects.sort(key=lambda x: x.date)
 
     if parsed.format is None or parsed.format[0] == "json":
         json.dump([x.to_object() for x in objects], outfile)
@@ -93,7 +95,7 @@ def main():
             outfile.write(exs.to_text_string()+"\n")
     elif parsed.format[0] == "message":
         for exs in objects:
-            outfile.write(exs.only_message()+"\n")
+            outfile.write(exs.no_names_message()+"\n")
     elif parsed.format[0] == "plain":
         for exs in objects:
             outfile.write(exs.to_plain_string()+"\n")
